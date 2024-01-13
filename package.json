@@ -1,5 +1,5 @@
 {
-  "name": "events",
+  "name": "events-api",
   "version": "0.0.1",
   "description": "Backend for event application",
   "main": "index.js",
@@ -14,7 +14,7 @@
     "build": "tsup src",
     "studio": "yarn prisma studio",
     "generate": "yarn prisma generate",
-    "vercel-build":"yarn prisma migrate deploy"
+    "vercel-build": " tsup src && yarn prisma migrate deploy"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.5",
