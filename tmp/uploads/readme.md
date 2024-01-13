@@ -1,0 +1,1 @@
+Pasta para simular entrada de arquivos

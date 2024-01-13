@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String        @id @unique @default(uuid())
+  email                 String        @unique
+  password              String
+  passwordResetToken    String?
+  passwordResetExpires  DateTime?
+  confirmAccount        Boolean?      @default(false)
+  confirmCode           String?
+  confirmAccountExpires DateTime?
+  profile               Profile?
+  type                  String        @default("client")
+  adminProfile          AdminProfile?
+  image                 AvatarImage?
+
+  @@map("users")
+}
+
+model AdminProfile {
+  id           String   @id @unique @default(uuid())
+  name         String   @default("")
+  paymentPlan  String   @default("free")
+  events       Event[]
+  cnpj         String?  @unique
+  createAt     DateTime @default(now())
+  updateAt     DateTime @updatedAt
+  contactEmail String?
+  contactPhone String?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String   @unique
+
+  @@map("adminProfiles")
+}
+
+model Profile {
+  id     String        @id @unique @default(uuid())
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String        @unique
+  name   String?
+  gender String?
+  cpf    String?       @unique
+  birth  DateTime?
+  phone  String?
+  events EventMember[]
+
+  @@map("profiles")
+}
+
+model Event {
+  id               String            @id @unique @default(uuid())
+  name             String
+  authorName       String
+  banner           Images?
+  membersSubscribe EventMember[]
+  description      String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now()) @updatedAt
+  eventInfo        EventInformation? @relation(fields: [eventInfoId], references: [id], onDelete: Cascade)
+  eventInfoId      String            @unique
+  adminProfile     AdminProfile?     @relation(fields: [adminProfileId], references: [id], onDelete: Cascade)
+  adminProfileId   String?
+
+  @@map("events")
+}
+
+model EventMember {
+  id        String   @id @unique @default(uuid())
+  km        Int
+  shirtSize String   @default("M")
+  event     Event?   @relation(fields: [eventsId], references: [id], onDelete: Cascade)
+  eventsId  String?
+  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String?
+
+  @@map("eventMembers")
+}
+
+model EventInformation {
+  id            String           @id @unique @default(uuid())
+  address       String
+  date          DateTime
+  shirtSizes    String[]
+  contactPhone  String?
+  contactMail   String?
+  event         Event?
+  subscribeDate DateTime
+  open          Boolean
+  paragraphs    EventParagraph[]
+
+  @@map("eventInformations")
+}
+
+model EventParagraph {
+  id                 String                  @id @unique @default(uuid())
+  title              String
+  content            EventParagraphContent[]
+  eventInformation   EventInformation?       @relation(fields: [eventInformationId], references: [id], onDelete: Cascade)
+  eventInformationId String?
+
+  @@map("eventPragraphs")
+}
+
+model EventParagraphContent {
+  id               String            @id @unique @default(uuid())
+  text             String?
+  images           ImagesParagraph[]
+  eventParagraph   EventParagraph?   @relation(fields: [eventParagraphId], references: [id], onDelete: Cascade)
+  eventParagraphId String?
+
+  @@map("eventContents")
+}
+
+model Images {
+  id      String @id @unique @default(uuid())
+  url     String
+  name    String
+  event   Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String @unique
+
+  @@map("images")
+}
+
+model AvatarImage {
+  id     String @id @unique @default(uuid())
+  url    String
+  name   String
+  user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+
+  @@map("avatar")
+}
+
+model ImagesParagraph {
+  id                      String                 @id @unique @default(uuid())
+  url                     String
+  name                    String
+  eventParagraphContent   EventParagraphContent? @relation(fields: [eventParagraphContentId], references: [id], onDelete: Cascade)
+  eventParagraphContentId String?
+
+  @@map("imagesParagraph")
+}
