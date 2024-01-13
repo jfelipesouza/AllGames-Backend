@@ -14,7 +14,7 @@
     "build": "tsup src",
     "studio": "yarn prisma studio",
     "generate": "yarn prisma generate",
-    "vercel-build": " tsup src && yarn prisma migrate deploy"
+    "vercel-build": "yarn build && yarn prisma migrate deploy"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.5",
